@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  redis:
+    image: redis/redis-stack
+    ports:
+      - '6379:6379'
+
+  fastapi-vscode-debug-setup:
+    image: fastapi-vscode-debug-setup
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"]
+    environment:
+      - csv_file_path=../data/vehicletest.csv
+      - parquet_file_path=../data/vehicletest.parquet
+      - REGION=us-east-1
+      - USERPOOLID=us-east-1_bkbWF4oc7
+      - APPCLIENTID=7q0bgv4tqg4t8o97ldeh13gips
+    restart: always
+    depends_on:
+      - redis
+    ports:
+      - 8000:8000
+      - 5678:5678
